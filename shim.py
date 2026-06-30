@@ -85,11 +85,12 @@ def bridge():
     if write_proc and write_proc.poll() is None:
         return write_proc
     log.info("ssh write bridge → %s", SSH_HOST)
-    node = os.environ.get("MEMOS_REMOTE_NODE", "node")
+    node = os.environ.get("MEMOS_REMOTE_NODE", "$HOME/.local/node/bin/node")
     cmd = ["ssh", SSH_HOST,
            "cd $HOME/.hermes/memos-plugin"
            " && exec " + node + " dist/bridge.cjs --agent=hermes --no-viewer"]
     write_proc = subprocess.Popen(
+        cmd,
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
         text=True,
     )
