@@ -26,13 +26,16 @@ logging.basicConfig(
 log = logging.getLogger("memos-remote")
 
 # ── config ────────────────────────────────────────────────────
-BASE = os.environ.get("MEMOS_REMOTE_URL", "")
+BASE = os.environ.get("MEMOS_REMOTE_URL")
 if not BASE:
-    host = os.environ.get("MEMOS_HOST", "mini2")
+    host = os.environ.get("MEMOS_HOST")
     port = os.environ.get("MEMOS_PORT", "18800")
+    if not host:
+        sys.stderr.write("shim: MEMOS_HOST or MEMOS_REMOTE_URL must be set\n")
+        sys.exit(1)
     BASE = "http://{}:{}".format(host, port)
 
-SSH_HOST = os.environ.get("MEMOS_SSH_HOST", os.environ.get("MEMOS_HOST", "mini2"))
+SSH_HOST = os.environ.get("MEMOS_SSH_HOST", os.environ.get("MEMOS_HOST"))
 
 READ_TIMEOUT = 90
 WRITE_TIMEOUT = 120

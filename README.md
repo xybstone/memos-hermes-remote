@@ -3,10 +3,10 @@
 Remote bridge for [@memtensor/memos-local-plugin](https://github.com/MemTensor/MemOS) —
 connects a Hermes Agent running on one machine to a MemOS instance on another.
 
-    Hermes (MacBook)              Tailscale            Remote (mini2)
-    ┌─────────────────┐         100.93.61.108         ┌──────────────────────┐
+    Hermes (MacBook)              Tailscale            Remote
+    ┌─────────────────┐         <remote-ip>          ┌──────────────────────┐
     │ memtensor        │  HTTP ──────────▶ :18800     │ memos daemon (http)  │
-    │   shim.py        │  SSH  ──────────▶ bridge.cjs │ memos.db (15 MB)     │
+    │   shim.py        │  SSH  ──────────▶ bridge.cjs │ memos.db             │
     │                  │                              │ bge-m3 embeddings    │
     └─────────────────┘                              └──────────────────────┘
 
@@ -65,9 +65,9 @@ echo "/path/to/shim.py" > ~/.hermes/memos-plugin/.memos-node-bin
 ### 4. Set environment variables
 
 ```bash
-export MEMOS_HOST=100.93.61.108        # remote hostname or IP
-export MEMOS_SSH_HOST=mini2            # SSH config alias (or same as MEMOS_HOST)
-export MEMOS_REMOTE_NODE=/usr/local/bin/node  # node binary on remote (if not in PATH)
+export MEMOS_HOST=<your-remote-ip>     # hostname or IP of the remote daemon
+export MEMOS_SSH_HOST=<your-ssh-alias>  # SSH config alias (or same as MEMOS_HOST)
+export MEMOS_REMOTE_NODE=node           # node binary on remote (if not on default PATH)
 ```
 
 Restart Hermes after these changes.
@@ -77,11 +77,11 @@ Restart Hermes after these changes.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `MEMOS_HOST` | `mini2` | Hostname/IP for HTTP read operations |
+| `MEMOS_HOST` | `—` | Hostname/IP for HTTP read operations (required) |
 | `MEMOS_PORT` | `18800` | Port for HTTP |
-| `MEMOS_REMOTE_URL` | — | Full base URL (overrides host+port) |
+| `MEMOS_REMOTE_URL` | `—` | Full base URL (overrides host+port) |
 | `MEMOS_SSH_HOST` | (same as MEMOS_HOST) | SSH target for write bridge |
-| `MEMOS_REMOTE_NODE` | `node` | Path to node on the remote (if not in PATH) |
+| `MEMOS_REMOTE_NODE` | `$HOME/.local/node/bin/node` | Path to node on the remote |
 | `MEMOS_DEBUG` | unset | Set to `1` for verbose logging |
 
 
@@ -107,7 +107,7 @@ No code changes to the provider, bridge, or Hermes core.
 - **SSH latency.**  First write in a session takes 3–5 seconds (bridge cold start).
   Subsequent writes in the same session are 1–2 seconds.
 - **SSH config aliases.**  `MEMOS_HOST` must be a resolvable hostname or IP.
-  Use `MEMOS_SSH_HOST` for SSH config aliases (like `mini2`) that aren't DNS-resolvable.
+  Use `MEMOS_SSH_HOST` for SSH config aliases that aren't DNS-resolvable.
 - **Node ≥20 required on remote.**  `better-sqlite3` native addon requires it.
 
 
